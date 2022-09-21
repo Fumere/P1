@@ -10,11 +10,13 @@ import board
 import numpy as np
 class boardStates(board.board):
     
-    def __init__ (self, parent, nextLoc, possMoves = []):
+    def __init__ (self, parent, nextLoc, possMoves = [], pathCost =np.empty((0,4), dtype ='int')):
         self.currLoc = nextLoc
         self.prevLoc = parent.currLoc
         self.board = parent.board
         self.possMoves = possMoves
+        
+        self.pathCost = pathCost
         
     def goalStateTest(self):
         if (self.board[self.currLoc] == -2):
