@@ -14,5 +14,5 @@ from Player._Player import Player
 
 
 h = [2,1,3,4] # 2 and 3 are same but left-first convention
-P2 = Player(customHeur=[2,1,3,4])
+P2 = Player()
 P2.action('UCS')

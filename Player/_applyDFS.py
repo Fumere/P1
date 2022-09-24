@@ -26,7 +26,8 @@ def applyDFS(self):
         possMovsMaybe = possMovsMaybe[(possMovsMaybe>-1).all(axis=1),:]
         possMovsMaybe = possMovsMaybe[(possMovsMaybe<len(self.currState.board)).all(axis=1),:]
         print('maybe moves 1 ', possMovsMaybe)
-        possMovsValid = self.currState.isBanned(possMovsMaybe)
+        possMovsValidTruth = self.currState.isBanned(possMovsMaybe)
+        possMovsValid = possMovsMaybe[possMovsValidTruth,:]
         print('valid moves', possMovsValid)
         
         return possMovsValid

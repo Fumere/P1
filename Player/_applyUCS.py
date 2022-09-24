@@ -16,39 +16,68 @@ def applyUCS(self):
         
         print('curr loc is ',currLoc)
         possMovsMaybe = self.heur + np.array(currLoc)
-        UCSOrdered = UCSorder(self, possMovsMaybe )
+        # UCSOrder = UCSorder(self, possMovsMaybe )
         
-        possMovsMaybe = UCSOrdered[(UCSOrdered>-1).all(axis=1),:]
-        possMovsMaybe = possMovsMaybe[(possMovsMaybe<len(self.currState.board)).all(axis=1),:]
-        print('maybe moves 1 ', possMovsMaybe)
-        possMovsValid = self.currState.isBanned(possMovsMaybe)
+        possMovsMaybeTruth = (possMovsMaybe>-1).all(axis=1) and (possMovsMaybe<len(self.currState.board)).all(axis=1)
+        # possMovsMaybe = possMovsMaybe[(possMovsMaybe<len(self.currState.board)).all(axis=1),:]
+        print('maybe moves 1 ', possMovsMaybe[possMovsMaybeTruth,:])
+        possMovsValidTruth = self.currState.isBanned(possMovsMaybe)
+        
+        totalTruth = possMovsMaybeTruth and possMovsValidTruth
+        
+        costsOfPossMoves = self.customHeur + self.currState.pathCost
+        # arrIndices = np.array(costsOfPossMoves).argsort()
+        
+        # UCSOrderTruth = totalTruth[UCSOrder[::1], :]
+        # UCSOrderMoves = possMovsMaybe[UCSOrder[::1], :]
+        
+        possMovsValid = possMovsMaybe[totalTruth,:]
+        costsOfPossMoves = costsOfPossMoves [totalTruth, : ]
+        
         print('valid moves', possMovsValid)
+        print('costs of moves', costsOfPossMoves)
         
-        return possMovsValid
+        return [possMovsValid, costsOfPossMoves]
     
        
     
-    def UCSorder(self, possMovsMaybe):
-            
-        arrIndices = np.array(self.customHeur).argsort()
+    # def UCSorder(self, possMovsMaybe):
         
-        possMovsMaybeOrdered= possMovsMaybe[arrIndices[::1]]
+    #     costsOfPossMoves = self.customHeur + self.currState.pathCost
+    #     arrIndices = np.array(costsOfPossMoves).argsort()
+    #     # self.currLoc.costsOfPossMoves = costsOfPossMoves[arrIndices[::1]]
         
-        return possMovsMaybeOrdered
+    #     # possMovsMaybeOrdered= possMovsMaybe[arrIndices[::1]]
+        
+    #     return arrIndices
   
             
-    def updatePossMoves(self, possMovsValid):
+    def updatePossMoves(self, possMovsValid, costsOfPossMoves):
         
         #Frontier
         
         # self.currState.board[tuple(newPossMoves.T)] = np.arange(self.stepCount+1,self.stepCount+len(newPossMoves)+1,1)
         possMovsValid = possMovsValid.tolist()
+        costsOfPossMoves = costsOfPossMoves.tolist()
+        
         newPossMoves =[]
+        newPossCosts = []
+        j=0
         for i in possMovsValid:
             if i not in self.currState.possMoves:
                 newPossMoves.append(i)
+                newPossCosts.append(costsOfPossMoves[j])
+            
+            j+=1
         
-        self.currState.possMoves = newPossMoves + self.currState.possMoves
+        allPossMoves = self.currState.possMoves + newPossMoves
+        allPossCosts = self.currState.possCosts + newPossCosts
+        
+        ordered = np.array(allPossCosts).argsort()
+        
+        self.currState.possMoves = allPossMoves[ordered[::1]]
+        self.currState.possCosts =  allPossCosts[ordered[::1]]
+        
         return newPossMoves
                 
         
@@ -71,9 +100,9 @@ def applyUCS(self):
         
     ######                    
                 
-    possMovsValid = AppSeq(self) #branches
-    newPossMoves = updatePossMoves(self, possMovsValid)
-    updateBoard(self, newPossMoves)
+    [possMovsValid, costsOfPossMoves] = AppSeq(self) #branches
+    updatePossMoves(self, possMovsValid, costsOfPossMoves)
+    updateBoard(self, possMovsValid)
     print('all curr poss locs \n', self.currState.possMoves)
     nextLoc = getNextMoveL(self)
     print('next loc is ',nextLoc)
