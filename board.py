@@ -18,13 +18,14 @@ Original file is located at
 import numpy as np
 
 class board:
-    def __init__ (self, size = int(6), blocks = np.array([[4,4,4,3,2,1],[2,3,4,4,4,4]]), start = [2,2],
+    def __init__ (self, size = (6,6), blocks = np.array([[4,4,4,3,2,1],[2,3,4,4,4,4]]), start = [2,2],
                   end = [5,5]):
 
-        board = np.zeros((size,size))
+        board = np.zeros(size)
         board[tuple(blocks)]=-1
         board[tuple(start)]=1
         board[tuple(end)]=-2
+        self.endLoc = np.array(end)
         
         self.board = board
         self.currLoc = start

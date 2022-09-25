@@ -21,14 +21,14 @@ def applyDFS(self):
         
         currLoc = self.currState.currLoc
         
-        print('curr loc is ',currLoc)
+        # print('curr loc is ',currLoc)
         possMovsMaybe = self.heur + np.array(currLoc)
         possMovsMaybe = possMovsMaybe[(possMovsMaybe>-1).all(axis=1),:]
-        possMovsMaybe = possMovsMaybe[(possMovsMaybe<len(self.currState.board)).all(axis=1),:]
-        print('maybe moves 1 ', possMovsMaybe)
+        possMovsMaybe = possMovsMaybe[(possMovsMaybe<len(self.currState.boardObj.board)).all(axis=1),:]
+        # print('maybe moves 1 ', possMovsMaybe)
         possMovsValidTruth = self.currState.isBanned(possMovsMaybe)
         possMovsValid = possMovsMaybe[possMovsValidTruth,:]
-        print('valid moves', possMovsValid)
+        # print('valid moves', possMovsValid)
         
         return possMovsValid
     
@@ -63,7 +63,7 @@ def applyDFS(self):
         
         if len(newPossMoves):
             newPossMoves = np.array(newPossMoves)
-            self.currState.board[tuple(newPossMoves.T)] = np.arange(self.stepCount+1,self.stepCount+len(newPossMoves)+1,1)
+            self.currState.boardObj.board[tuple(newPossMoves.T)] = np.arange(self.stepCount+1,self.stepCount+len(newPossMoves)+1,1)
             self.stepCount = self.stepCount+len(newPossMoves)
     
         
@@ -72,7 +72,7 @@ def applyDFS(self):
     possMovsValid = AppSeq(self) #branches
     newPossMoves = updatePossMoves(self, possMovsValid)
     updateBoard(self, newPossMoves)
-    print('all curr poss locs \n', self.currState.possMoves)
+    # print('all curr poss locs \n', self.currState.possMoves)
     nextLoc = getNextMoveL(self)
-    print('next loc is ',nextLoc)
+    # print('next loc is ',nextLoc)
     return nextLoc   

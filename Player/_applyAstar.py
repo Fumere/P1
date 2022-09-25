@@ -1,20 +1,22 @@
+
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Sep 21 14:56:07 2022
+Created on Sat Sep 24 22:23:51 2022
 
-@author: neelkh
+@author: dharmendrakhakhar
 """
+
 
 import numpy as np
 
-def applyUCS(self):
+def applyAstar(self):
     
     
     
     def AppSeq(self):
         
         currLoc = self.currState.currLoc
-        
         # print('curr loc is ',currLoc)
         possMovsMaybe = self.heur + np.array(currLoc)
         
@@ -25,7 +27,9 @@ def applyUCS(self):
         
         totalTruth = np.logical_and(possMovsMaybeTruth , possMovsValidTruth)
         
-        costsOfPossMoves = self.customHeur + self.currState.pathCost
+        costsOfPossMovesGreedy = getGBFSCost(self, possMovsMaybe)
+        
+        costsOfPossMoves = costsOfPossMovesGreedy + self.customHeur + self.currState.pathCost
         
         possMovsValid = possMovsMaybe[totalTruth,:]
         costsOfPossMoves = costsOfPossMoves [totalTruth ]
@@ -35,15 +39,40 @@ def applyUCS(self):
         
         return [possMovsValid, costsOfPossMoves]
     
+    def getGBFSCost(self, possMovsMaybe):
+        
+        dist = self.currState.boardObj.endLoc - np.array(possMovsMaybe)
+        costs = []
+        
+        for i in range(np.size(possMovsMaybe, axis =0)):
+            cost = 0
+            if dist[i][0]>0:
+                cost +=abs( dist[i][0]*self.customHeur[2])
+            elif dist[i][0]<0:
+                cost += abs(dist[i][0]*self.customHeur[0])
+            
+            if dist[i][1]>0:
+                cost += abs(dist[i][1]*self.customHeur[1])
+            elif dist[i][1]<0:
+                cost += abs(dist[i][1]*self.customHeur[3])
+            
+            costs.append(cost)
+            
+        return np.array(costs)
+            
+                
   
             
     def updatePossMoves(self, possMovsValid, costsOfPossMoves):
         
+        
+        
         #Frontier
         
-        # self.currState.board[tuple(newPossMoves.T)] = np.arange(self.stepCount+1,self.stepCount+len(newPossMoves)+1,1)
         possMovsValid = possMovsValid.tolist()
-        costsOfPossMoves = costsOfPossMoves.tolist()
+        costsOfPossMoves = costsOfPossMoves.tolist()      
+
+        
         
         newPossMoves =[]
         newPossCosts = []
@@ -60,22 +89,34 @@ def applyUCS(self):
         
         ordered = np.array(allPossCosts).argsort()
         
+
         self.currState.possMoves = [allPossMoves[i] for i in ordered]
         self.currState.possCosts =  [allPossCosts[i] for i in ordered]
+        
+        # print('\n new moves ', newPossMoves)
+        # print('\n new costs ', newPossCosts)
+        # print('\n all costs ', self.currState.possCosts)
+        # print('\n all moves ', self.currState.possMoves)
     
                 
         
                 
     def getNextMoveL(self):
         
+        
         allPossMoves = self.currState.possMoves
         nextLoc = allPossMoves[0]
-        self.currState.pathCost = self.currState.possCosts[0]
+        ##IMPORTANT##
+        ##Subtract GBFS cost counted until now to queue next moves. 
+        ##Only UCS costs add up as path travelled + next move
+        
+        GBFScost = getGBFSCost(self, [nextLoc])
+
+        self.currState.pathCost = self.currState.possCosts[0] - GBFScost
         
         self.currState.possCosts = self.currState.possCosts[1:]
         self.currState.possMoves = self.currState.possMoves[1:]
         # print('cost at next move ', self.currState.pathCost)
-        # self.currState.possMoves = allPossMoves[np.all(allPossMoves != nextLoc, axis =1),:]
         return nextLoc
     
     def updateBoard(self, newPossMoves):

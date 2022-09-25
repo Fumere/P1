@@ -11,10 +11,13 @@ import numpy as np
 from Player._applyBFS import applyBFS
 from Player._applyDFS import applyDFS
 from Player._applyUCS import applyUCS
+from Player._applyGBFS import applyGBFS
+from Player._applyAstar import applyAstar
+
 
 class Player():
     
-    def __init__ (self, aboard = bd.board(), customHeur=[], c=0 ):  #h = np.array([[-1,0,1,0],[0,1,0,-1]]).T,
+    def __init__ (self, aboard = bd.board(), c=0, customHeur=[] ):  #h = np.array([[-1,0,1,0],[0,1,0,-1]]).T,
         
         self.currState = bds.boardStates(aboard, aboard.currLoc)
         self.heur = np.array([[-1,0,1,0],[0,1,0,-1]]).T
@@ -25,30 +28,56 @@ class Player():
 
     def action (self,  method = 'BFS'):
         
+        goalStateTest = True
         if (method == 'BFS'):
-            while (self.currState.goalStateTest):
+            print('\n -----method BFS----- \n')
+            while (goalStateTest):
+                
                 
                 nextLoc = applyBFS(self)
                 # print('next loc is ',nextLoc)
-                self.currState = bds.boardStates(self.currState, nextLoc, self.currState.possMoves)
-
+                self.currState = bds.boardStates(self.currState.boardObj, nextLoc, self.currState.possMoves)
+                goalStateTest = self.currState.goalStateTest()
+                
         elif (method == 'DFS'):
-            
-            while (self.currState.goalStateTest):
+            print('\n -----method DFS----- \n')
+            while (goalStateTest):
+                
                 
                 nextLoc = applyDFS(self)
                 # print('next loc is ',nextLoc)
-                self.currState = bds.boardStates(self.currState, nextLoc, self.currState.possMoves)
+                self.currState = bds.boardStates(self.currState.boardObj, nextLoc, self.currState.possMoves)
+                goalStateTest = self.currState.goalStateTest()
                 
         elif (method == 'UCS'):
-            
-            while (self.currState.goalStateTest):
+            print('\n -----method UCS----- \n')
+            while (goalStateTest):
+                
                 
                 nextLoc = applyUCS(self)
                 # print('next loc is ',nextLoc)
-                self.currState = bds.boardStates(self.currState, nextLoc, self.currState.possMoves)                
-
-
+                self.currState = bds.boardStates(self.currState.boardObj, nextLoc, self.currState.possMoves, self.currState.possCosts, self.currState.pathCost)                
+                goalStateTest = self.currState.goalStateTest()
+                
+        elif (method == 'GBFS'):
+            print('\n -----method GBFS----- \n')
+            while (goalStateTest):
+                
+                
+                nextLoc = applyGBFS(self)
+                # print('next loc is ',nextLoc)
+                self.currState = bds.boardStates(self.currState.boardObj, nextLoc, self.currState.possMoves, self.currState.possCosts, self.currState.pathCost)                
+                goalStateTest = self.currState.goalStateTest()
+                
+        elif (method == 'Astar'):
+            print('\n -----method Astar----- \n')
+            while (goalStateTest):
+                
+                
+                nextLoc = applyAstar(self)
+                # print('next loc is ',nextLoc)
+                self.currState = bds.boardStates(self.currState.boardObj, nextLoc, self.currState.possMoves, self.currState.possCosts, self.currState.pathCost)                
+                goalStateTest = self.currState.goalStateTest()
 
 
 

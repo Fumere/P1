@@ -1,20 +1,21 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Sep 21 14:56:07 2022
+Created on Sat Sep 24 22:23:51 2022
 
-@author: neelkh
+@author: dharmendrakhakhar
 """
+
 
 import numpy as np
 
-def applyUCS(self):
+def applyGBFS(self):
     
     
     
     def AppSeq(self):
         
         currLoc = self.currState.currLoc
-        
         # print('curr loc is ',currLoc)
         possMovsMaybe = self.heur + np.array(currLoc)
         
@@ -25,7 +26,7 @@ def applyUCS(self):
         
         totalTruth = np.logical_and(possMovsMaybeTruth , possMovsValidTruth)
         
-        costsOfPossMoves = self.customHeur + self.currState.pathCost
+        costsOfPossMoves = getGBFSCost(self, possMovsMaybe)
         
         possMovsValid = possMovsMaybe[totalTruth,:]
         costsOfPossMoves = costsOfPossMoves [totalTruth ]
@@ -35,6 +36,28 @@ def applyUCS(self):
         
         return [possMovsValid, costsOfPossMoves]
     
+    def getGBFSCost(self, possMovsMaybe):
+        
+        dist = self.currState.boardObj.endLoc - possMovsMaybe
+        costs = []
+        
+        for i in dist:
+            cost = 0
+            if i[0]>0:
+                cost += i[0]*self.customHeur[2]
+            elif i[0]<0:
+                cost += abs(i[0]*self.customHeur[0])
+            
+            if i[1]>0:
+                cost += i[1]*self.customHeur[1]
+            elif i[1]<0:
+                cost += abs(i[1]*self.customHeur[3])
+            
+            costs.append(cost)
+            
+        return np.array(costs)
+            
+                
   
             
     def updatePossMoves(self, possMovsValid, costsOfPossMoves):
