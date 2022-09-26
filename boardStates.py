@@ -38,7 +38,7 @@ class boardStates(board):
         j=0
         nppotLoc = np.array(potLoc)
         
-        possMovsMaybeTruth = np.logical_and((potLoc>-1).all(axis=1), (potLoc<len(self.boardObj.board)).all(axis=1))
+        possMovsMaybeTruth = np.logical_and((potLoc>-1).all(axis=1), (potLoc<np.array(np.shape(self.boardObj.board))).all(axis=1))
         for i in possMovsMaybeTruth:
             if i:
                 isNotBanned.append((self.boardObj.board[tuple(nppotLoc[j,:])]==0).tolist())
